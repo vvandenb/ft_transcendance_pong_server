@@ -1,11 +1,7 @@
 import { Module } from '@nestjs/common'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
-import { PongGateway } from './pong/pong.gateway'
+import { PongModule } from './pong/pong.module'
 
 @Module({
-	imports: [],
-	controllers: [AppController],
-	providers: [AppService, PongGateway]
+	imports: [PongModule]
 })
 export class AppModule {}

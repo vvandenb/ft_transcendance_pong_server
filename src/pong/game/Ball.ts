@@ -1,5 +1,5 @@
-import { Paddle } from "./Paddle";
-import { Point, Rect } from "./utils";
+import { Paddle } from './Paddle'
+import { Point, Rect } from './utils'
 
 export class Ball {
 	rect: Rect
@@ -28,8 +28,7 @@ export class Ball {
 			console.log('Scoooore!')
 			this.speed.x = this.speed.x * -1
 		}
-		if (!canvas_rect.contains_y(this.rect))
-			this.speed.y = this.speed.y * -1
+		if (!canvas_rect.contains_y(this.rect)) this.speed.y = this.speed.y * -1
 		this.rect.center.add_inplace(this.speed)
 	}
 }
