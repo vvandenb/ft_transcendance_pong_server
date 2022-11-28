@@ -23,7 +23,7 @@ export class Paddle {
 		else this.rect.center.y = new_y
 	}
 
-	move(position: Point) {
-		this.rect.center = position
+	move(new_y: number) {
+		this.rect.center.y = new_y
 	}
 }

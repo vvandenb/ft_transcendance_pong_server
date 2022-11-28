@@ -13,6 +13,7 @@ import { Point } from './game/utils'
 
 const EVENT_START_GAME = 'START_GAME'
 const EVENT_PLAYER_MOVE = 'PLAYER_MOVE'
+const EVENT_GET_PLAYER_COUNT = 'GET_PLAYER_COUNT'
 
 interface WebSocketWithId extends WebSocket {
 	id: string
@@ -33,6 +34,17 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		client: WebSocketWithId
 	) {
 		this.pong.stopGame(client.id)
+	}
+
+	@SubscribeMessage(EVENT_GET_PLAYER_COUNT)
+	getPlayerCount(@ConnectedSocket() client: WebSocketWithId) {
+		const data = JSON.stringify({
+			event: EVENT_GET_PLAYER_COUNT,
+			data: {
+				playerCount: this.pong.getPlayerCount()
+			}
+		})
+		client.send(data)
 	}
 
 	@SubscribeMessage(EVENT_START_GAME)

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { PongGateway } from './pong.gateway'
-import { Pong } from './pong';
+import { Pong } from './pong'
 
 @Module({
 	providers: [PongGateway, Pong]
