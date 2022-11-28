@@ -7,13 +7,19 @@ export class Point {
 		this.y = y
 	}
 
+	//Returns a new point
 	add(other: Point) {
 		return new Point(this.x + other.x, this.y + other.y)
 	}
 
+	//Modifies `this` point
 	add_inplace(other: Point) {
 		this.x += other.x
 		this.y += other.y
+	}
+
+	clone(): Point {
+		return new Point(this.x, this.y)
 	}
 }
 
@@ -72,4 +78,11 @@ export class Rect {
 			return true
 		return false
 	}
+}
+
+export function formatWebsocketData(event: string, data?: any): string {
+	return JSON.stringify({
+		event,
+		data
+	})
 }

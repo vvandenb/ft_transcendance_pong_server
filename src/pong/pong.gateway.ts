@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets'
 import { randomUUID } from 'crypto'
 import { Pong } from './pong'
-import { Point } from './game/utils'
+import { formatWebsocketData, Point } from './game/utils'
 
 const EVENT_START_GAME = 'START_GAME'
 const EVENT_PLAYER_MOVE = 'PLAYER_MOVE'
@@ -26,25 +26,24 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	handleConnection(client: WebSocketWithId) {
 		const uuid = randomUUID()
 		client.id = uuid
-		this.pong.newPlayer(uuid, client)
+		this.pong.addPlayer(uuid, client)
 	}
 
 	handleDisconnect(
 		@ConnectedSocket()
 		client: WebSocketWithId
 	) {
+		this.pong.removePlayer(client.id)
 		this.pong.stopGame(client.id)
 	}
 
 	@SubscribeMessage(EVENT_GET_PLAYER_COUNT)
 	getPlayerCount(@ConnectedSocket() client: WebSocketWithId) {
-		const data = JSON.stringify({
-			event: EVENT_GET_PLAYER_COUNT,
-			data: {
+		client.send(
+			formatWebsocketData(EVENT_GET_PLAYER_COUNT, {
 				playerCount: this.pong.getPlayerCount()
-			}
-		})
-		client.send(data)
+			})
+		)
 	}
 
 	@SubscribeMessage(EVENT_START_GAME)
