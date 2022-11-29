@@ -16,8 +16,8 @@ export class Pong {
 		this.game.removePlayer(uuid)
 	}
 
-	startGame(uuid: string) {
-		this.game.start()
+	startGame(uuid: string): boolean {
+		return this.game.start()
 	}
 
 	stopGame(uuid: string) {
@@ -31,5 +31,9 @@ export class Pong {
 
 	movePlayer(uuid: string, position: Point) {
 		this.game.movePaddle(uuid, position)
+	}
+
+	broadcastGame(uuid: string, data: string) {
+		this.game.broadcastGame(data)
 	}
 }

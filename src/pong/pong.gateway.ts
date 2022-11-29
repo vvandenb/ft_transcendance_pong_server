@@ -10,10 +10,7 @@ import {
 import { randomUUID } from 'crypto'
 import { Pong } from './pong'
 import { formatWebsocketData, Point } from './game/utils'
-
-const EVENT_START_GAME = 'START_GAME'
-const EVENT_PLAYER_MOVE = 'PLAYER_MOVE'
-const EVENT_GET_PLAYER_COUNT = 'GET_PLAYER_COUNT'
+import { GAME_EVENTS } from './game/constants'
 
 interface WebSocketWithId extends WebSocket {
 	id: string
@@ -37,24 +34,26 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		this.pong.stopGame(client.id)
 	}
 
-	@SubscribeMessage(EVENT_GET_PLAYER_COUNT)
+	@SubscribeMessage(GAME_EVENTS.GET_PLAYER_COUNT)
 	getPlayerCount(@ConnectedSocket() client: WebSocketWithId) {
 		client.send(
-			formatWebsocketData(EVENT_GET_PLAYER_COUNT, {
+			formatWebsocketData(GAME_EVENTS.GET_PLAYER_COUNT, {
 				playerCount: this.pong.getPlayerCount()
 			})
 		)
 	}
 
-	@SubscribeMessage(EVENT_START_GAME)
+	@SubscribeMessage(GAME_EVENTS.START_GAME)
 	startGame(
 		@ConnectedSocket()
 		client: WebSocketWithId
 	) {
-		this.pong.startGame(client.id)
+		if (this.pong.startGame(client.id)) {
+			this.pong.broadcastGame(client.id, formatWebsocketData(GAME_EVENTS.START_GAME))
+		}
 	}
 
-	@SubscribeMessage(EVENT_PLAYER_MOVE)
+	@SubscribeMessage(GAME_EVENTS.PLAYER_MOVE)
 	movePlayer(
 		@ConnectedSocket()
 		client: WebSocketWithId,
