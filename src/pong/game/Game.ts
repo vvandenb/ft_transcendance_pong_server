@@ -2,15 +2,16 @@ import { Ball } from './Ball'
 import { WebSocket } from 'ws'
 import { formatWebsocketData, Point, Rect } from './utils'
 import { Player } from './Player'
-import { GAME_EVENTS } from './constants'
+import { GameInfo, gameInfoConstants, GAME_EVENTS } from './constants'
 
 const GAME_TICKS = 30
 const WIN_SCORE = 2
-const PLAYER_X_OFFSET = 50
-const canvas = { width: 640, height: 480 }
 
 function gameLoop(game: Game) {
-	const canvas_rect = new Rect(new Point(640 / 2, 480 / 2), new Point(640, 480))
+	const canvas_rect = new Rect(
+		new Point(gameInfoConstants.mapSize.x / 2, gameInfoConstants.mapSize.y / 2),
+		new Point(gameInfoConstants.mapSize.x, gameInfoConstants.mapSize.y)
+	)
 	game.ball.update(
 		canvas_rect,
 		game.players.map((p) => p.paddle)
@@ -39,39 +40,45 @@ export class Game {
 
 	constructor() {
 		this.timer = null
-		this.ball = null
+		this.ball = new Ball(new Point(gameInfoConstants.mapSize.x / 2, gameInfoConstants.mapSize.y / 2))
 		this.players = []
 	}
 
-	getPlayerCount(): number {
-		return this.players.length
+	getGameInfo(uuid: string): GameInfo {
+		const yourPaddleIndex = this.players.findIndex((p) => p.uuid == uuid)
+		return {
+			...gameInfoConstants,
+			yourPaddleIndex: yourPaddleIndex
+		}
 	}
 
 	addPlayer(uuid: string, socket: WebSocket) {
-		let paddleCoords = new Point(PLAYER_X_OFFSET, canvas.height / 2)
+		let paddleCoords = new Point(gameInfoConstants.playerXOffset, gameInfoConstants.mapSize.y / 2)
 		if (this.players.length == 1) {
-			paddleCoords = new Point(canvas.width - PLAYER_X_OFFSET, canvas.height / 2)
+			paddleCoords = new Point(
+				gameInfoConstants.mapSize.x - gameInfoConstants.playerXOffset,
+				gameInfoConstants.mapSize.y / 2
+			)
 		}
-		this.players.push(new Player(uuid, socket, paddleCoords))
-		console.log(`Added player with UUID: ${uuid}`)
+		const players_count = this.players.push(new Player(uuid, socket, paddleCoords, gameInfoConstants.mapSize))
+		console.log(`Added player with UUID: ${this.players[players_count - 1].uuid}`)
 	}
 
 	removePlayer(uuid: string) {
-		this.players.splice(
-			this.players.findIndex((p) => {
-				if (p.uuid == uuid) {
-					console.log(`Removed player with UUID: ${uuid}`)
-					return true
-				}
-				return false
-			}),
-			1
-		)
+		const player_index = this.players.findIndex((p) => p.uuid == uuid)
+		if (player_index != -1) {
+			console.log(`Removing player with UUID: ${this.players[player_index].uuid}`)
+			this.players.splice(player_index, 1)
+			if (this.players.length < 2) {
+				this.stop()
+			}
+		}
 	}
 
 	start(): boolean {
 		if (!this.timer && this.players.length == 2) {
-			this.ball = new Ball(new Point(canvas.width / 2, canvas.height / 2))
+			this.ball = new Ball(new Point(gameInfoConstants.mapSize.x / 2, gameInfoConstants.mapSize.y / 2))
+			this.players.forEach((p) => p.newGame())
 
 			this.timer = setInterval(gameLoop, 1000 / GAME_TICKS, this)
 			console.log('Started game')
@@ -83,6 +90,7 @@ export class Game {
 	stop() {
 		if (this.timer) {
 			clearInterval(this.timer)
+			this.timer = null
 			console.log('Stopped game')
 		}
 	}

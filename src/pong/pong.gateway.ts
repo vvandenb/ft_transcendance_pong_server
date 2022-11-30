@@ -18,7 +18,7 @@ interface WebSocketWithId extends WebSocket {
 
 @WebSocketGateway()
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
-	constructor(private pong: Pong) {}
+	private pong: Pong = new Pong()
 
 	handleConnection(client: WebSocketWithId) {
 		const uuid = randomUUID()
@@ -31,16 +31,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		client: WebSocketWithId
 	) {
 		this.pong.removePlayer(client.id)
-		this.pong.stopGame(client.id)
 	}
 
-	@SubscribeMessage(GAME_EVENTS.GET_PLAYER_COUNT)
+	@SubscribeMessage(GAME_EVENTS.GET_GAME_INFO)
 	getPlayerCount(@ConnectedSocket() client: WebSocketWithId) {
-		client.send(
-			formatWebsocketData(GAME_EVENTS.GET_PLAYER_COUNT, {
-				playerCount: this.pong.getPlayerCount()
-			})
-		)
+		client.send(formatWebsocketData(GAME_EVENTS.GET_GAME_INFO, this.pong.getGameInfo(client.id)))
 	}
 
 	@SubscribeMessage(GAME_EVENTS.START_GAME)

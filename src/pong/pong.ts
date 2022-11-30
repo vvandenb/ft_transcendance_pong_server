@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common'
 import { WebSocket } from 'ws'
+import { GameInfo } from './game/constants'
 import { Game } from './game/Game'
 import { Point } from './game/utils'
 
-@Injectable()
 export class Pong {
 	// private games = new Map<Array<string>, Game>()
 	private game: Game = new Game()
@@ -22,11 +21,10 @@ export class Pong {
 
 	stopGame(uuid: string) {
 		this.game.stop()
-		this.game = new Game()
 	}
 
-	getPlayerCount() {
-		return this.game.getPlayerCount()
+	getGameInfo(uuid: string): GameInfo {
+		return this.game.getGameInfo(uuid)
 	}
 
 	movePlayer(uuid: string, position: Point) {

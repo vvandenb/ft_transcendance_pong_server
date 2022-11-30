@@ -1,3 +1,4 @@
+import { gameInfoConstants } from './constants'
 import { Paddle } from './Paddle'
 import { Point, Rect } from './utils'
 
@@ -7,7 +8,7 @@ export class Ball {
 	spawn: Point
 	indexPlayerScored: number
 
-	constructor(spawn: Point, size: Point = new Point(20, 20), speed: Point = new Point(10, 2)) {
+	constructor(spawn: Point, size: Point = gameInfoConstants.ballSize, speed: Point = new Point(10, 2)) {
 		this.rect = new Rect(spawn, size)
 		this.speed = speed
 		this.spawn = spawn.clone()
