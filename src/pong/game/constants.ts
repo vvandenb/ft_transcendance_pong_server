@@ -15,10 +15,18 @@ export interface GameInfoConstants {
 	paddleSize: Point
 	playerXOffset: number
 	ballSize: Point
+	winScore: number
 }
 export const gameInfoConstants: GameInfoConstants = {
 	mapSize: new Point(600, 400),
 	paddleSize: new Point(6, 50),
 	playerXOffset: 50,
-	ballSize: new Point(20, 20)
+	ballSize: new Point(20, 20),
+	winScore: 2
+}
+
+export interface GameUpdate {
+	paddlesPositions: Point[]
+	ballPosition: Point
+	scores: number[]
 }

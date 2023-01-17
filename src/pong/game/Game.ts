@@ -2,10 +2,9 @@ import { Ball } from './Ball'
 import { WebSocket } from 'ws'
 import { formatWebsocketData, Point, Rect } from './utils'
 import { Player } from './Player'
-import { GameInfo, gameInfoConstants, GAME_EVENTS } from './constants'
+import { GameInfo, gameInfoConstants, GameUpdate, GAME_EVENTS } from './constants'
 
 const GAME_TICKS = 30
-const WIN_SCORE = 2
 
 function gameLoop(game: Game) {
 	const canvas_rect = new Rect(
@@ -19,18 +18,19 @@ function gameLoop(game: Game) {
 	const index_player_scored: number = game.ball.getIndexPlayerScored()
 	if (index_player_scored != -1) {
 		game.players[index_player_scored].score += 1
-		if (game.players[index_player_scored].score >= WIN_SCORE) {
+		if (game.players[index_player_scored].score >= gameInfoConstants.winScore) {
 			console.log(`Player ${index_player_scored + 1} won!`)
 			game.stop()
 		}
 	}
 
-	const data = formatWebsocketData(GAME_EVENTS.GAME_TICK, {
+	const data: GameUpdate = {
 		paddlesPositions: game.players.map((p) => p.paddle.rect.center),
 		ballPosition: game.ball.rect.center,
 		scores: game.players.map((p) => p.score)
-	})
-	game.broadcastGame(data)
+	}
+	const websocketData: string = formatWebsocketData(GAME_EVENTS.GAME_TICK, data)
+	game.broadcastGame(websocketData)
 }
 
 export class Game {
@@ -91,6 +91,7 @@ export class Game {
 		if (this.timer) {
 			clearInterval(this.timer)
 			this.timer = null
+			this.players = []
 			console.log('Stopped game')
 		}
 	}
